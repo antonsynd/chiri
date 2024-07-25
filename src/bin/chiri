@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+set -u
+
+script_path=$(readlink -f "$0")
+bin_dir=$(dirname "${script_path}")
+python_dir="${bin_dir}/../python"
+
+export PYTHONPATH="${python_dir}:${PYTHONPATH:-}"
+
+python3 "${python_dir}/main.py" "$@"

@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+import argparse
+import shutil
+import sys
+
+from pathlib import Path
+
+DEFAULT_INSTALL_PATH: Path = Path("~/.chiri").expanduser()
+SOURCE_PATH: Path = Path(__file__).parent.parent.parent / "src"
+
+
+def main() -> None:
+    parser: argparse.ArgumentParser = create_parser()
+    args: argparse.Namespace = parser.parse_args()
+
+    command: str = args.command
+
+    if command == "help":
+        parser.print_help()
+    elif command == "build":
+        build(args=args)
+    elif command == "install":
+        install(args=args)
+    elif command == "release":
+        build(args=args)
+        test(args=args)
+        install(args=args)
+    elif command == "test":
+        test(args=args)
+    else:
+        print(f'Unknown command "{command}"', file=sys.stderr)
+        sys.exit(1)
+
+
+def create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="")
+    subparsers = parser.add_subparsers(dest="command")
+
+    subparsers.add_parser("build")
+
+    install_parser = subparsers.add_parser("install")
+    install_parser.add_argument(
+        "--install-dir",
+        type=Path,
+        default=DEFAULT_INSTALL_PATH,
+        help=f"Defaults to {DEFAULT_INSTALL_PATH}",
+    )
+
+    release_parser = subparsers.add_parser("release")
+    release_parser.add_argument(
+        "--install-dir",
+        type=Path,
+        default=DEFAULT_INSTALL_PATH,
+        help=f"Defaults to {DEFAULT_INSTALL_PATH}",
+    )
+
+    subparsers.add_parser("test")
+    subparsers.add_parser("help")
+
+    return parser
+
+
+def build(args: argparse.Namespace) -> None:
+    pass
+
+
+def install(args: argparse.Namespace) -> None:
+    install_dir: Path = args.install_dir
+    install_dir.mkdir(parents=True, exist_ok=True)
+
+    shutil.copytree(SOURCE_PATH, install_dir, dirs_exist_ok=True)
+
+
+def test(args: argparse.Namespace) -> None:
+    pass
+
+
+if __name__ == "__main__":
+    main()
