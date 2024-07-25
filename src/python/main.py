@@ -5,11 +5,12 @@ import subprocess
 import sys
 
 from pathlib import Path
-from typing import Mapping, Optional, Sequence
+from typing import AbstractSet, Mapping, Optional, Sequence
 
 import pyjson5
 
 CHIRI_VERSION: str = "0.1.0"
+PACKAGE_ALIASES: AbstractSet[str] = {"build", "pkg"}
 
 
 def main() -> None:
@@ -18,7 +19,7 @@ def main() -> None:
 
     command: str = args.command
 
-    if command == "package":
+    if command == "package" or command in PACKAGE_ALIASES:
         package(args=args, rest=rest)
     elif command == "help":
         parser.print_help()
