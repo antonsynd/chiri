@@ -18,8 +18,8 @@ def main() -> None:
 
     command: str = args.command
 
-    if command == "build":
-        build(args=args, rest=rest)
+    if command == "package":
+        package(args=args, rest=rest)
     elif command == "help":
         parser.print_help()
     elif command == "version":
@@ -32,14 +32,14 @@ def main() -> None:
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Chiri build system.")
     subparsers = parser.add_subparsers(dest="command", required=True)
-    subparsers.add_parser("build")
+    subparsers.add_parser("package", aliases=["pkg", "build"])
     subparsers.add_parser("help")
     subparsers.add_parser("version")
 
     return parser
 
 
-def build(args: argparse.Namespace, rest: Sequence[str]) -> None:
+def package(args: argparse.Namespace, rest: Sequence[str]) -> None:
     config_path: Optional[Path] = try_find_config()
 
     if not config_path:
