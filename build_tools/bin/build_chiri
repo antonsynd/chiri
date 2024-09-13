@@ -61,7 +61,7 @@ def create_parser() -> argparse.ArgumentParser:
 
 
 def build(args: argparse.Namespace) -> None:
-    pass
+    print(f"Nothing to build")
 
 
 def install(args: argparse.Namespace) -> None:
@@ -70,9 +70,11 @@ def install(args: argparse.Namespace) -> None:
 
     shutil.copytree(SOURCE_PATH, install_dir, dirs_exist_ok=True)
 
+    print(f"Installed to {install_dir}")
+
 
 def test(args: argparse.Namespace) -> None:
-    pass
+    print(f"No tests to run")
 
 
 if __name__ == "__main__":

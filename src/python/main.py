@@ -67,6 +67,9 @@ def package(args: argparse.Namespace, rest: Sequence[str]) -> None:
         existing_ld_library_path: str = env.get("LD_LIBRARY_PATH", "")
         env["LD_LIBRARY_PATH"] = f"{existing_ld_library_path}:{build_system_lib_dir}"
 
+        if rest and rest[0] == "--":
+            rest.pop(0)
+
         try:
             subprocess.run(
                 args=[str(build_system_entry_point), *rest], env=env, check=True
