@@ -5,17 +5,28 @@ import subprocess
 import sys
 
 from pathlib import Path
-from typing import AbstractSet, Mapping, Optional, Sequence
+from typing import AbstractSet, MutableMapping, Optional, MutableSequence
 
 import pyjson5
 
-CHIRI_VERSION: str = "0.1.0"
+CHIRI_VERSION: str = "0.1.1"
 PACKAGE_ALIASES: AbstractSet[str] = {"build", "pkg"}
 
 
 def main() -> None:
     parser: argparse.ArgumentParser = create_parser()
-    args, rest = parser.parse_known_args()
+
+    chiri_args: MutableSequence[str] = []
+    rest: MutableSequence[str] = []
+
+    for i, arg in enumerate(sys.argv[1:], start=1):
+        if arg == "--":
+            rest.extend(sys.argv[i + 1:])
+            break
+
+        chiri_args.append(arg)
+
+    args = parser.parse_args(chiri_args)
 
     command: str = args.command
 
@@ -32,6 +43,13 @@ def main() -> None:
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Chiri build system.")
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"Chiri v{CHIRI_VERSION}",
+        help="Show the version of Chiri.",
+    )
+
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("package", aliases=["pkg", "build"])
     subparsers.add_parser("help")
@@ -40,7 +58,7 @@ def create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def package(args: argparse.Namespace, rest: Sequence[str]) -> None:
+def package(args: argparse.Namespace, rest: MutableSequence[str]) -> None:
     config_path: Optional[Path] = try_find_config()
 
     if not config_path:
@@ -48,7 +66,7 @@ def package(args: argparse.Namespace, rest: Sequence[str]) -> None:
         sys.exit(1)
 
     with open(config_path) as config_file:
-        config_data = pyjson5.decode_io(config_file)
+        config_data = pyjson5.decode_io(config_file)  # type: ignore[no-untyped-call]
         build_system_name: str = config_data["build_system"]
 
         repo_root: Path = config_path.parent
@@ -63,7 +81,7 @@ def package(args: argparse.Namespace, rest: Sequence[str]) -> None:
             )
             sys.exit(1)
 
-        env: Mapping[str, str] = os.environ.copy()
+        env: MutableMapping[str, str] = os.environ.copy()
         existing_ld_library_path: str = env.get("LD_LIBRARY_PATH", "")
         env["LD_LIBRARY_PATH"] = f"{existing_ld_library_path}:{build_system_lib_dir}"
 
